@@ -92,10 +92,7 @@ class RecursiveAttribute(UserDict, StringFormatMixin):
         """Get an equivalent dict representation."""
         d = {}
         for k, v in self.__dict__["data"].items():
-            if isinstance(v, RecursiveAttribute):
-                d[k] = v.to_dict()
-            else:
-                d[k] = v
+            d[k] = v.to_dict() if isinstance(v, RecursiveAttribute) else v
         return d
 
     def copy(self):
@@ -225,7 +222,7 @@ class ScopeContext(object):
         return self.scope_stack[-1].to_dict()
 
     def __str__(self):
-        names = ('.'.join(y for y in x) for x in self.scopes.keys())
+        names = ('.'.join(iter(x)) for x in self.scopes.keys())
         return "%r" % (tuple(names),)
 
 

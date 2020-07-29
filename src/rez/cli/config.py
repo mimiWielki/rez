@@ -11,12 +11,12 @@ def setup_parser(parser, completions=False):
     parser.add_argument(
         "--source-list", dest="source_list", action="store_true",
         help="list the config files sourced")
-    FIELD_action = parser.add_argument(
-        "FIELD", type=str, nargs='?',
-        help="print the value of a specific setting")
-
     if completions:
         from rez.cli._complete_util import ConfigCompleter
+        FIELD_action = parser.add_argument(
+            "FIELD", type=str, nargs='?',
+            help="print the value of a specific setting")
+
         FIELD_action.completer = ConfigCompleter
 
 

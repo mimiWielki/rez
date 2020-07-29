@@ -48,11 +48,7 @@ def _intersection(A,B):
     @rtype: List
     @return: List of Intersections
     """
-    intersection = []
-    for i in A:
-        if i in B:
-            intersection.append(i)
-    return intersection
+    return [i for i in A if i in B]
 
 def transitive_edges(graph):
     """
@@ -71,11 +67,11 @@ def transitive_edges(graph):
         contains a cycle) 
     """
     #if the graph contains a cycle we return an empty array
-    if not len(find_cycle(graph)) == 0:
+    if len(find_cycle(graph)) != 0:
         return []
-    
+
     tranz_edges = [] # create an empty array that will contain all the tuples
-    
+
     #run trough all the nodes in the graph
     for start in topological_sorting(graph):
         #find all the successors on the path for the current node
@@ -83,7 +79,7 @@ def transitive_edges(graph):
         for a in traversal(graph,start,'pre'):
             successors.append(a)
         del successors[0] #we need all the nodes in it's path except the start node itself
-        
+
         for next in successors:
             #look for an intersection between all the neighbors of the 
             #given node and all the neighbors from the given successor
@@ -91,7 +87,7 @@ def transitive_edges(graph):
             for a in intersect_array:
                 if graph.has_edge((start, a)):
                     ##check for the detected edge and append it to the returned array   
-                    tranz_edges.append( (start,a) )      
+                    tranz_edges.append( (start,a) )
     return tranz_edges # return the final array
 
 

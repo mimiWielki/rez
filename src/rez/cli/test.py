@@ -57,11 +57,7 @@ def command(opts, parser, extra_arg_groups=None):
         print('\n'.join(test_names))
         sys.exit(0)
 
-    if opts.TEST:
-        run_test_names = opts.TEST
-    else:
-        run_test_names = test_names
-
+    run_test_names = opts.TEST if opts.TEST else test_names
     for test_name in run_test_names:
         returncode = runner.run_test(test_name)
 

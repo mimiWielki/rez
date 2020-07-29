@@ -246,8 +246,7 @@ def pool_memcached_connections(func):
     if isgeneratorfunction(func):
         def wrapper(*nargs, **kwargs):
             with memcached_client():
-                for result in func(*nargs, **kwargs):
-                    yield result
+                yield from func(*nargs, **kwargs)
     else:
         def wrapper(*nargs, **kwargs):
             with memcached_client():

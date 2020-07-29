@@ -31,14 +31,13 @@ class TestRex(TestBase):
         loc = inspect.getsourcelines(func)[0][1:]
         code = textwrap.dedent('\n'.join(loc))
 
+        ex = self._create_executor(env, **ex_kwargs)
         if expected_exception:
-            ex = self._create_executor(env, **ex_kwargs)
             self.assertRaises(expected_exception, ex.execute_function, func)
 
             ex = self._create_executor(env, **ex_kwargs)
             self.assertRaises(expected_exception, ex.execute_code, code)
         else:
-            ex = self._create_executor(env, **ex_kwargs)
             ex.execute_function(func)
             self.assertEqual(ex.actions, expected_actions)
             self.assertEqual(ex.get_output(), expected_output)

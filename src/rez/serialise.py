@@ -148,8 +148,6 @@ def _load_from_file(filepath, format_, update_data_callback):
 
 
 def _load_file(filepath, format_, update_data_callback, original_filepath=None):
-    load_func = load_functions[format_]
-
     if debug_print:
         if original_filepath:
             debug_print("Loading file: %s (local cache of %s)",
@@ -158,6 +156,8 @@ def _load_file(filepath, format_, update_data_callback, original_filepath=None):
             debug_print("Loading file: %s", filepath)
 
     with open(filepath) as f:
+        load_func = load_functions[format_]
+
         result = load_func(f, filepath=filepath)
 
     if update_data_callback:
@@ -420,8 +420,7 @@ def load_txt(stream, **kwargs):
     Returns:
         string.
     """
-    content = stream.read()
-    return content
+    return stream.read()
 
 
 def clear_file_caches():

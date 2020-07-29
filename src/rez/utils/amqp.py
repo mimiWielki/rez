@@ -37,10 +37,9 @@ def publish_message(host, amqp_settings, routing_key, data, block=True):
 
     if _thread is None:
         with _lock:
-            if _thread is None:
-                _thread = threading.Thread(target=_publish_messages_async)
-                _thread.daemon = True
-                _thread.start()
+            _thread = threading.Thread(target=_publish_messages_async)
+            _thread.daemon = True
+            _thread.start()
 
     with _lock:
         _num_pending += 1

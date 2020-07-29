@@ -41,7 +41,7 @@ class ModifyList(object):
 def remove_nones(**kwargs):
     """Return diict copy with nones removed.
     """
-    return dict((k, v) for k, v in kwargs.items() if v is not None)
+    return {k: v for k, v in kwargs.items() if v is not None}
 
 
 def deep_update(dict1, dict2):
@@ -55,7 +55,7 @@ def deep_update(dict1, dict2):
         if isinstance(v, ModifyList):
             return v.apply([])
         elif isinstance(v, dict):
-            return dict((k, flatten(v_)) for k, v_ in v.items())
+            return {k: flatten(v_) for k, v_ in v.items()}
         else:
             return v
 
@@ -94,11 +94,7 @@ def deep_del(data, fn):
 
     for k, v in data.items():
         if not fn(v):
-            if isinstance(v, dict):
-                result[k] = deep_del(v, fn)
-            else:
-                result[k] = v
-
+            result[k] = deep_del(v, fn) if isinstance(v, dict) else v
     return result
 
 
@@ -246,10 +242,9 @@ class LazySingleton(object):
         if self.instance is None:
             try:
                 self.lock.acquire()
-                if self.instance is None:
-                    self.instance = self.instance_class(*self.nargs, **self.kwargs)
-                    self.nargs = None
-                    self.kwargs = None
+                self.instance = self.instance_class(*self.nargs, **self.kwargs)
+                self.nargs = None
+                self.kwargs = None
             finally:
                 self.lock.release()
         return self.instance
@@ -546,20 +541,19 @@ class LazyAttributeMeta(type):
     @classmethod
     def _make_validated_data(cls):
         def func(self):
-            if self.schema:
-                d = {}
-                for key in self._schema_keys:
-                    d[key] = getattr(self, key)
-
-                # arbitrary keys
-                if self._data:
-                    akeys = set(self._data.keys()) - set(d.keys())
-                    for akey in akeys:
-                        d[akey] = self._data[akey]
-
-                return d
-            else:
+            if not self.schema:
                 return None
+            d = {}
+            for key in self._schema_keys:
+                d[key] = getattr(self, key)
+
+            # arbitrary keys
+            if self._data:
+                akeys = set(self._data.keys()) - set(d.keys())
+                for akey in akeys:
+                    d[akey] = self._data[akey]
+
+            return d
 
         return func
 

@@ -71,7 +71,7 @@ class TestCommands(TestBase):
         minor_version = str(pkg.version[1] if len(pkg.version) >= 2 else '')
         patch_version = str(pkg.version[2] if len(pkg.version) >= 3 else '')
 
-        cmds = [Setenv('REZ_REXTEST_VERSION', verstr),
+        return [Setenv('REZ_REXTEST_VERSION', verstr),
                 Setenv('REZ_REXTEST_MAJOR_VERSION', major_version),
                 Setenv('REZ_REXTEST_MINOR_VERSION', minor_version),
                 Setenv('REZ_REXTEST_PATCH_VERSION', patch_version),
@@ -83,7 +83,6 @@ class TestCommands(TestBase):
                 Setenv('REXTEST_MAJOR_VERSION', str(pkg.version[0])),
                 Setenv('REXTEST_DIRS', "/".join([base, "data"])),
                 Alias('rextest', 'foobar')]
-        return cmds
 
     def _test_rextest_package(self, version):
         pkg = VersionedObject("rextest-%s" % version)

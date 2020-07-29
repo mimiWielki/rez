@@ -97,7 +97,7 @@ else:
         import _winreg as winreg
 
     def get_installed_pythons():
-        final_exes = dict()
+        final_exes = {}
 
         # Grab exes from 32-bit registry view
         exes = _get_installed_pythons_for_view("-32", winreg.KEY_WOW64_32KEY)
@@ -122,7 +122,7 @@ else:
         return final_exes
 
     def _get_installed_pythons_for_view(bitness, view):
-        exes = dict()
+        exes = {}
         # If both system and current user installations are found for a
         # particular Python version, the current user one is used
         for key in (winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER):
@@ -278,9 +278,8 @@ class Logger(object):
         self.log(self.FATAL, msg, *args, **kw)
 
     def log(self, level, msg, *args, **kw):
-        if args:
-            if kw:
-                raise TypeError("You may give positional or keyword arguments, not both")
+        if args and kw:
+            raise TypeError("You may give positional or keyword arguments, not both")
         args = args or kw
         rendered = None
         for consumer_level, consumer in self.consumers:
@@ -290,10 +289,7 @@ class Logger(object):
                     print("")
                     sys.stdout.flush()
                 if rendered is None:
-                    if args:
-                        rendered = msg % args
-                    else:
-                        rendered = msg
+                    rendered = msg % args if args else msg
                     rendered = " " * self.indent + rendered
                 if hasattr(consumer, "write"):
                     consumer.write(rendered + "\n")
@@ -318,10 +314,9 @@ class Logger(object):
             if not self.in_progress_hanging:
                 # Some message has been printed out since start_progress
                 print("...{}{}".format(self.in_progress, msg))
-                sys.stdout.flush()
             else:
                 print(msg)
-                sys.stdout.flush()
+            sys.stdout.flush()
         self.in_progress = None
         self.in_progress_hanging = False
 
@@ -364,9 +359,7 @@ class Logger(object):
             start, stop = level.start, level.stop
             if start is not None and start > consumer_level:
                 return False
-            if stop is not None and stop <= consumer_level:
-                return False
-            return True
+            return stop is None or stop > consumer_level
         else:
             return level >= consumer_level
 
@@ -889,10 +882,7 @@ def call_subprocess(
                 part = part.decode(sys.getfilesystemencoding())
         cmd_parts.append(part)
     cmd_desc = " ".join(cmd_parts)
-    if show_stdout:
-        stdout = None
-    else:
-        stdout = subprocess.PIPE
+    stdout = None if show_stdout else subprocess.PIPE
     logger.debug("Running command {}".format(cmd_desc))
     if extra_env or remove_from_env:
         env = os.environ.copy()
@@ -1200,7 +1190,7 @@ def path_locations(home_dir, dry_run=False):
         lib_dir = home_dir
         inc_dir = join(home_dir, "include")
         bin_dir = join(home_dir, "bin")
-    elif not IS_WIN:
+    else:
         lib_dir = join(home_dir, "lib", PY_VERSION)
         inc_dir = join(home_dir, "include", PY_VERSION + ABI_FLAGS)
         bin_dir = join(home_dir, "bin")
@@ -1305,7 +1295,8 @@ def copy_required_modules(dst_prefix, symlink):
             if (
                 modname == "readline"
                 and IS_DARWIN
-                and not (IS_PYPY or filename.endswith(join("lib-dynload", "readline.so")))
+                and not IS_PYPY
+                and not filename.endswith(join("lib-dynload", "readline.so"))
             ):
                 dst_filename = join(dst_prefix, "lib", "python{}".format(sys.version[:3]), "readline.so")
             elif modname == "readline" and IS_WIN:
@@ -1749,10 +1740,7 @@ def install_files(home_dir, bin_dir, prompt, files):
 
 
 def install_python_config(home_dir, bin_dir, prompt=None):
-    if IS_WIN:
-        files = {}
-    else:
-        files = {"python-config": PYTHON_CONFIG}
+    files = {} if IS_WIN else {"python-config": PYTHON_CONFIG}
     install_files(home_dir, bin_dir, prompt, files)
     for name, _ in files.items():
         make_exe(os.path.join(bin_dir, name))

@@ -43,10 +43,7 @@ class priority_queue:
         heapify(self.heap)
 
     def __contains__(self, item):
-        for heap_item in self.heap:
-            if item == heap_item.item:
-                return True
-        return False
+        return any(item == heap_item.item for heap_item in self.heap)
 
     def __len__(self):
         return len(self.heap)

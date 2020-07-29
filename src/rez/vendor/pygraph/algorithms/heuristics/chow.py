@@ -71,7 +71,6 @@ class chow(object):
         @param end: End node.
         """
         assert len( list(self.nodes.keys()) ) > 0, "You need to optimize this heuristic for your graph before it can be used to estimate."
-                
+
         cmp_sequence = list(zip( self.nodes[start], self.nodes[end] ))
-        chow_number = max( abs( a-b ) for a,b in cmp_sequence )
-        return chow_number
+        return max( abs( a-b ) for a,b in cmp_sequence )

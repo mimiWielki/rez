@@ -141,7 +141,7 @@ def command(opts, parser, extra_arg_groups=None):
 
     command = opts.command
     if extra_arg_groups:
-        if opts.command:
+        if command:
             parser.error("argument --command: not allowed with arguments after '--'")
         command = extra_arg_groups[0] or None
 
@@ -166,9 +166,9 @@ def command(opts, parser, extra_arg_groups=None):
         if context is None:
             from rez.status import status
             context = status.context
-            if context is None:
-                print("cannot patch: not in a context", file=sys.stderr)
-                sys.exit(1)
+        if context is None:
+            print("cannot patch: not in a context", file=sys.stderr)
+            sys.exit(1)
 
         # modify the request in terms of the given patch request
         request = context.get_patched_request(request,

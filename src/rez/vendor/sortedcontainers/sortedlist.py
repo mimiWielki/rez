@@ -871,11 +871,11 @@ class SortedList(MutableSequence):
             return iter(())
         elif min_pos == max_pos and not reverse:
             return iter(_lists[min_pos][min_idx:max_idx])
-        elif min_pos == max_pos and reverse:
+        elif min_pos == max_pos:
             return reversed(_lists[min_pos][min_idx:max_idx])
         elif min_pos + 1 == max_pos and not reverse:
             return chain(_lists[min_pos][min_idx:], _lists[max_pos][:max_idx])
-        elif min_pos + 1 == max_pos and reverse:
+        elif min_pos + 1 == max_pos:
             return chain(
                 reversed(_lists[max_pos][:max_idx]),
                 reversed(_lists[min_pos][min_idx:]),

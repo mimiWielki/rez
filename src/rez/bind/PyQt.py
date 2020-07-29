@@ -16,7 +16,7 @@ def bind(path, version_range=None, opts=None, parser=None):
         ["from PyQt4 import QtCore",
          "print(QtCore.PYQT_VERSION_STR)"])
 
-    variants = _pymodule.bind(name,
+    return _pymodule.bind(name,
                               path=path,
                               import_name=import_name,
                               version_range=version_range,
@@ -24,5 +24,3 @@ def bind(path, version_range=None, opts=None, parser=None):
                               version=version,
                               pure_python=False,
                               tools=tools)
-
-    return variants

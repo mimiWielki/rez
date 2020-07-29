@@ -29,7 +29,7 @@ class PackageRepositoryResourceWrapper(ResourceWrapper, StringFormatMixin):
 
     def validated_data(self):
         data = ResourceWrapper.validated_data(self)
-        data = dict((k, v) for k, v in data.items() if v is not None)
+        data = {k: v for k, v in data.items() if v is not None}
         return data
 
     @property
@@ -138,24 +138,23 @@ class PackageBaseResourceWrapper(PackageRepositoryResourceWrapper):
                           skip_attributes=skip_attributes)
 
     def _wrap_forwarded(self, key, value):
-        if isinstance(value, SourceCode) and value.late_binding:
-            # get cached return value if present
-            value_ = self._late_binding_returnvalues.get(key, KeyError)
-
-            if value_ is KeyError:
-                # evaluate the late-bound function
-                value_ = self._eval_late_binding(value)
-
-                schema = self.late_bind_schemas.get(key)
-                if schema is not None:
-                    value_ = schema.validate(value_)
-
-                # cache result of late bound func
-                self._late_binding_returnvalues[key] = value_
-
-            return value_
-        else:
+        if not isinstance(value, SourceCode) or not value.late_binding:
             return value
+        # get cached return value if present
+        value_ = self._late_binding_returnvalues.get(key, KeyError)
+
+        if value_ is KeyError:
+            # evaluate the late-bound function
+            value_ = self._eval_late_binding(value)
+
+            schema = self.late_bind_schemas.get(key)
+            if schema is not None:
+                value_ = schema.validate(value_)
+
+            # cache result of late bound func
+            self._late_binding_returnvalues[key] = value_
+
+        return value_
 
     def _eval_late_binding(self, sourcecode):
         g = {}
@@ -433,8 +432,7 @@ class PackageSearchPath(object):
         Returns:
             `Package` iterator.
         """
-        for package in iter_packages(name=name, range_=range_, paths=self.paths):
-            yield package
+        yield from iter_packages(name=name, range_=range_, paths=self.paths)
 
     def __contains__(self, package):
         """See if a package is in this list of repositories.
@@ -559,8 +557,7 @@ def get_package_from_handle(package_handle):
     if isinstance(package_handle, dict):
         package_handle = ResourceHandle.from_dict(package_handle)
     package_resource = package_repository_manager.get_resource_from_handle(package_handle)
-    package = Package(package_resource)
-    return package
+    return Package(package_resource)
 
 
 def get_package_from_string(txt, paths=None):
@@ -624,8 +621,7 @@ def get_variant(variant_handle, context=None):
         variant_handle = ResourceHandle.from_dict(variant_handle)
 
     variant_resource = package_repository_manager.get_resource_from_handle(variant_handle)
-    variant = Variant(variant_resource, context=context)
-    return variant
+    return Variant(variant_resource, context=context)
 
 
 def get_last_release_time(name, paths=None):
@@ -670,12 +666,11 @@ def get_completions(prefix, paths=None, family_only=False):
         Set of strings, may be empty.
     """
     op = None
-    if prefix:
-        if prefix[0] in ('!', '~'):
-            if family_only:
-                return set()
-            op = prefix[0]
-            prefix = prefix[1:]
+    if prefix and prefix[0] in ('!', '~'):
+        if family_only:
+            return set()
+        op = prefix[0]
+        prefix = prefix[1:]
 
     fam = None
     for ch in ('-', '@', '#'):
@@ -687,8 +682,8 @@ def get_completions(prefix, paths=None, family_only=False):
 
     words = set()
     if not fam:
-        words = set(x.name for x in iter_package_families(paths=paths)
-                    if x.name.startswith(prefix))
+        words = {x.name for x in iter_package_families(paths=paths)
+                            if x.name.startswith(prefix)}
         if len(words) == 1:
             fam = next(iter(words))
 
@@ -701,7 +696,7 @@ def get_completions(prefix, paths=None, family_only=False):
                      if x.qualified_name.startswith(prefix))
 
     if op:
-        words = set(op + x for x in words)
+        words = {op + x for x in words}
     return words
 
 

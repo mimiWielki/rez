@@ -374,7 +374,7 @@ def get_rez_requirements(installed_dist, python_version, name_casings=None):
     result_variant_requires = []
 
     # create cased names lookup
-    name_mapping = dict((x.lower(), x) for x in (name_casings or []))
+    name_mapping = {x.lower(): x for x in (name_casings or [])}
 
     # requirements such as platform, arch, os, and python
     sys_requires = set(["python"])

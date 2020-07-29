@@ -101,8 +101,7 @@ class FilesCompleter(object):
 
         if not abs_:
             path = path[n:]
-        filepaths = (os.path.join(path, x) for x in matching_names)
-        return filepaths
+        return (os.path.join(path, x) for x in matching_names)
 
 
 class CombinedCompleter(object):

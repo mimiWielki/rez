@@ -58,8 +58,7 @@ class common( object ):
         @rtype:  iterator
         @return: Iterator passing through all nodes in the graph.
         """
-        for n in self.nodes():
-            yield n
+        yield from self.nodes()
             
     def __len__(self):
         """
@@ -77,8 +76,7 @@ class common( object ):
         @rtype:  iterator
         @return: Iterator passing through all neighbors of the given node.
         """
-        for n in self.neighbors( node ):
-            yield n
+        yield from self.neighbors( node )
             
     def order(self):
         """
@@ -113,8 +111,8 @@ class common( object ):
         @type  other: graph
         @param other: Graph
         """
-        self.add_nodes( n for n in other.nodes() if not n in self.nodes() )
-        
+        self.add_nodes(n for n in other.nodes() if n not in self.nodes())
+
         for each_node in other.nodes():
             for each_edge in other.neighbors(each_node):
                 if (not self.has_edge((each_node, each_edge))):
@@ -170,12 +168,12 @@ class common( object ):
         @return: The directed graph that should be reversed.
         """
         assert self.DIRECTED, "Undirected graph types such as %s cannot be reversed" % self.__class__.__name__
-        
+
         N = self.__class__()
-    
+
         #- Add the nodes
-        N.add_nodes( n for n in self.nodes() )
-    
+        N.add_nodes(iter(self.nodes()))
+
         #- Add the reversed edges
         for (u, v) in self.edges():
             wt = self.edge_weight((u, v))
@@ -198,16 +196,12 @@ class common( object ):
         def nodes_eq():
             for each in self:
                 if (not other.has_node(each)): return False
-            for each in other:
-                if (not self.has_node(each)): return False
-            return True
+            return all(self.has_node(each) for each in other)
         
         def edges_eq():
             for edge in self.edges():
                     if (not other.has_edge(edge)): return False
-            for edge in other.edges():
-                    if (not self.has_edge(edge)): return False
-            return True
+            return all(self.has_edge(edge) for edge in other.edges())
         
         try:
             return nodes_eq() and edges_eq()

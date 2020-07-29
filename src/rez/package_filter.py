@@ -265,10 +265,7 @@ class PackageFilterList(PackageFilterBase):
         return flist
 
     def to_pod(self):
-        data = []
-        for f in self.filters:
-            data.append(f.to_pod())
-        return data
+        return [f.to_pod() for f in self.filters]
 
     def __nonzero__(self):
         return any(self.filters)
@@ -334,10 +331,7 @@ class Rule(object):
         # parse form 'x(y)' into x, y
         label, txt = Rule._parse_label(txt)
         if label is None:
-            if '*' in txt:
-                label = "glob"
-            else:
-                label = "range"
+            label = "glob" if '*' in txt else "range"
         elif label not in types:
             raise ConfigurationError(
                 "'%s' is not a valid package filter type" % label)

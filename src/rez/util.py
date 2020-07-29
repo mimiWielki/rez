@@ -99,10 +99,7 @@ def get_close_pkgs(pkg, pkgs, fuzziness=0.4):
                                     fuzziness=fuzziness,
                                     key=lambda x: x.split('-')[0])
 
-    d = {}
-    for pkg_, r in (matches + fam_matches):
-        d[pkg_] = d.get(pkg_, 0.0) + r
-
+    d = {pkg_: d.get(pkg_, 0.0) + r for pkg_, r in (matches + fam_matches)}
     combined = [(k, v * 0.5) for k, v in d.items()]
     return sorted(combined, key=lambda x: -x[1])
 
@@ -131,11 +128,7 @@ def _atexit():
 def is_non_string_iterable(arg):
     """Python 2 and 3 compatible non-string iterable identifier"""
 
-    if six.PY2:
-        iterable_class = collections.Iterable
-    else:
-        iterable_class = collections.abc.Iterable
-
+    iterable_class = collections.Iterable if six.PY2 else collections.abc.Iterable
     return (
         isinstance(arg, iterable_class)
         and not isinstance(arg, six.string_types)

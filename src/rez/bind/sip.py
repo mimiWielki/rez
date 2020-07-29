@@ -14,10 +14,8 @@ def bind(path, version_range=None, opts=None, parser=None):
         ["import sip",
          "print(sip.SIP_VERSION_STR)"])
 
-    variants = _pymodule.bind(name,
+    return _pymodule.bind(name,
                               path=path,
                               version_range=version_range,
                               version=version,
                               pure_python=False)
-
-    return variants

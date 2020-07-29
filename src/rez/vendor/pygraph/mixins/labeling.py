@@ -208,9 +208,7 @@ class labeling( object ):
         def attrs_eq(list1, list2):
             for each in list1:
                 if (each not in list2): return False
-            for each in list2:
-                if (each not in list1): return False
-            return True
+            return all(each in list1 for each in list2)
         
         def edges_eq():
             for edge in self.edges():
@@ -220,8 +218,9 @@ class labeling( object ):
             return True
         
         def nodes_eq():
-            for node in self:
-                if (not attrs_eq(self.node_attributes(node), other.node_attributes(node))): return False 
-            return True
+            return all(
+                attrs_eq(self.node_attributes(node), other.node_attributes(node))
+                for node in self
+            )
         
         return nodes_eq() and edges_eq()

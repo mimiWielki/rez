@@ -49,12 +49,12 @@ def setup_parser(parser, completions=False):
     parser.add_argument(
         "--variants", nargs='+', type=int, metavar="INDEX",
         help="select variants to copy (zero-indexed).")
-    pkg_action = parser.add_argument(
-        "PKG",
-        help="package to copy")
-
     if completions:
         from rez.cli._complete_util import PackageCompleter
+        pkg_action = parser.add_argument(
+            "PKG",
+            help="package to copy")
+
         pkg_action.completer = PackageCompleter
 
 

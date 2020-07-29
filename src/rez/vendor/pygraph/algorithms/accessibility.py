@@ -123,7 +123,7 @@ def connected_components(graph):
     """
     recursionlimit = getrecursionlimit()
     setrecursionlimit(max(len(graph.nodes())*2,recursionlimit))
-    
+
     visited = {}
     count = 1
 
@@ -132,8 +132,8 @@ def connected_components(graph):
     for each in graph:
         if (each not in visited):
             _dfs(graph, visited, count, each)
-            count = count + 1
-    
+            count += 1
+
     setrecursionlimit(recursionlimit)
     return visited
 

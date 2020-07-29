@@ -186,13 +186,16 @@ def _get_python_script_files(filepath, py_script_mode, platform):
     has_py_ext = extension == ".py"
     is_windows = platform == "windows"
 
-    if py_script_mode == ExecutableScriptMode.single or \
-            py_script_mode == ExecutableScriptMode.both or \
-            (py_script_mode == ExecutableScriptMode.py and has_py_ext) or \
-            (py_script_mode == ExecutableScriptMode.platform_specific and
-             not is_windows) or \
-            (py_script_mode == ExecutableScriptMode.platform_specific and
-             is_windows and has_py_ext):
+    if (
+        py_script_mode == ExecutableScriptMode.single
+        or py_script_mode == ExecutableScriptMode.both
+        or py_script_mode == ExecutableScriptMode.py
+        and has_py_ext
+        or py_script_mode == ExecutableScriptMode.platform_specific
+        and not is_windows
+        or py_script_mode == ExecutableScriptMode.platform_specific
+        and has_py_ext
+    ):
         script_filepaths.append(filepath)
 
     if not has_py_ext and \

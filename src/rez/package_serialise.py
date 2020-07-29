@@ -112,7 +112,7 @@ def dump_package_data(data, buf, format_=FileFormat.py, skip_attributes=None):
     if format_ == FileFormat.txt:
         raise ValueError("'txt' format not supported for packages.")
 
-    data_ = dict((k, v) for k, v in data.items() if v is not None)
+    data_ = {k: v for k, v in data.items() if v is not None}
     data_ = package_serialise_schema.validate(data_)
     skip = set(skip_attributes or [])
 

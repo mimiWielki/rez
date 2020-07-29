@@ -416,7 +416,7 @@ class Client(threading.local):
     def _init_buckets(self):
         self.buckets = []
         for server in self.servers:
-            for i in range(server.weight):
+            for _ in range(server.weight):
                 self.buckets.append(server)
 
     def _get_server(self, key):
@@ -1437,11 +1437,7 @@ class _Host(object):
         read fails, otherwise return an empty string.
         """
         buf = self.buffer
-        if self.socket:
-            recv = self.socket.recv
-        else:
-            recv = lambda bufsize: b''
-
+        recv = self.socket.recv if self.socket else (lambda bufsize: b'')
         while True:
             index = buf.find(b'\r\n')
             if index >= 0:

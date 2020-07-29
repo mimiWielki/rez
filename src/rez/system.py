@@ -273,10 +273,7 @@ class System(object):
                 if tok:
                     valid_tok = ''
                     for ch in tok:
-                        if char_regex.match(ch):
-                            valid_tok += ch
-                        else:
-                            valid_tok += '_'
+                        valid_tok += ch if char_regex.match(ch) else '_'
                     valid_toks.append(valid_tok)
                 else:
                     seps = seps[1:]  # skip empty string between seps

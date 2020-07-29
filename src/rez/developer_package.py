@@ -203,14 +203,6 @@ class DeveloperPackage(Package):
                     return None
 
                 elif isinstance(package_preprocess_function, basestring):
-                    if '.' not in package_preprocess_function:
-                        print_error(
-                            "Setting 'package_preprocess_function' must be of "
-                            "form 'module[.module.module...].funcname'. "
-                            "Package preprocessing has not been applied."
-                        )
-                        return None
-
                     name, funcname = package_preprocess_function.rsplit('.', 1)
 
                     try:

@@ -117,7 +117,7 @@ class graph(basegraph, common, labeling):
         """
         if attrs is None:
             attrs = []
-        if (not node in self.node_neighbors):
+        if node not in self.node_neighbors:
             self.node_neighbors[node] = []
             self.node_attr[node] = attrs
         else:

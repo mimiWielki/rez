@@ -465,7 +465,7 @@ class ResolvedContext(object):
 
         # apply overrides
         if package_requests:
-            request_dict = dict((x.name, (i, x)) for i, x in enumerate(request))
+            request_dict = {x.name: (i, x) for i, x in enumerate(request)}
             request_ = []
 
             for req in package_requests:
@@ -487,15 +487,14 @@ class ResolvedContext(object):
 
         # add rank limiters
         if not strict and rank > 1:
-            overrides = set(x.name for x in package_requests if not x.conflict)
+            overrides = {x.name for x in package_requests if not x.conflict}
             rank_limiters = []
             for variant in self.resolved_packages:
-                if variant.name not in overrides:
-                    if len(variant.version) >= rank:
-                        version = variant.version.trim(rank - 1)
-                        version = next(version)
-                        req = "~%s<%s" % (variant.name, str(version))
-                        rank_limiters.append(req)
+                if variant.name not in overrides and len(variant.version) >= rank:
+                    version = variant.version.trim(rank - 1)
+                    version = next(version)
+                    req = "~%s<%s" % (variant.name, str(version))
+                    rank_limiters.append(req)
             request += rank_limiters
 
         return request
@@ -615,15 +614,15 @@ class ResolvedContext(object):
                                        "paths differ:\n%s" % '\n'.join(diff))
 
         d = {}
-        self_pkgs_ = set(x.parent for x in self._resolved_packages)
-        other_pkgs_ = set(x.parent for x in other._resolved_packages)
+        self_pkgs_ = {x.parent for x in self._resolved_packages}
+        other_pkgs_ = {x.parent for x in other._resolved_packages}
         self_pkgs = self_pkgs_ - other_pkgs_
         other_pkgs = other_pkgs_ - self_pkgs_
         if not (self_pkgs or other_pkgs):
             return d
 
-        self_fams = dict((x.name, x) for x in self_pkgs)
-        other_fams = dict((x.name, x) for x in other_pkgs)
+        self_fams = {x.name: x for x in self_pkgs}
+        other_fams = {x.name: x for x in other_pkgs}
 
         newer_packages = {}
         older_packages = {}
@@ -1015,8 +1014,7 @@ class ResolvedContext(object):
             for tool in tools:
                 tool_sets[tool].add(variant)
 
-        conflicts = dict((k, v) for k, v in tool_sets.items() if len(v) > 1)
-        return conflicts
+        return {k: v for k, v in tool_sets.items() if len(v) > 1}
 
     @_on_success
     def get_shell_code(self, shell=None, parent_environ=None, style=OutputStyle.file):
@@ -1536,8 +1534,7 @@ class ResolvedContext(object):
         else:
             doc = yaml.load(content, Loader=yaml.FullLoader)
 
-        context = cls.from_dict(doc, identifier_str)
-        return context
+        return cls.from_dict(doc, identifier_str)
 
     @classmethod
     def _load_error(cls, e, path=None):

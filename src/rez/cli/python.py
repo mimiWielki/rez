@@ -6,12 +6,12 @@ Unrecognised args are passed directly to the underlying python interpreter.
 
 
 def setup_parser(parser, completions=False):
-    file_action = parser.add_argument(
-        "FILE", type=str, nargs='?',
-        help='python script to execute')
-
     if completions:
         from rez.cli._complete_util import FilesCompleter
+        file_action = parser.add_argument(
+            "FILE", type=str, nargs='?',
+            help='python script to execute')
+
         file_action.completer = FilesCompleter(dirs=False,
                                                file_patterns=["*.py"])
 

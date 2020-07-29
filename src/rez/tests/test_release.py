@@ -94,7 +94,7 @@ class TestRelease(TestBase, TempdirMixin):
         "PackageRequest" objects
         """
         def _standardize_variants(variants):
-            return [list(str(req) for req in variant) for variant in variants]
+            return [[str(req) for req in variant] for variant in variants]
 
         self.assertEqual(_standardize_variants(vars1),
                          _standardize_variants(vars2))
@@ -157,7 +157,7 @@ class TestRelease(TestBase, TempdirMixin):
 
         # check the package install path contains the packages we expect
         it = iter_packages("foo", paths=[self.install_root])
-        qnames = set(x.qualified_name for x in it)
+        qnames = {x.qualified_name for x in it}
         self.assertEqual(qnames, expected_value)
 
     @per_available_shell()

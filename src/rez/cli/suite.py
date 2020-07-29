@@ -63,19 +63,19 @@ def setup_parser(parser, completions=False):
     parser.add_argument(
         "-b", "--bump", type=str, metavar="NAME",
         help="bump a context, making its tools higher priority than others")
-    find_request_action = parser.add_argument(
-        "--find-request", type=str, metavar="PKG",
-        help="find the contexts that contain the given package in the request")
-    find_resolve_action = parser.add_argument(
-        "--find-resolve", type=str, metavar="PKG",
-        help="find the contexts that contain the given package in the resolve")
-    DIR_action = parser.add_argument(
-        "DIR", type=str, nargs='?',
-        help="directory of suite to create or manage")
-
     if completions:
         from rez.cli._complete_util import FilesCompleter, PackageCompleter, \
             PackageFamilyCompleter
+        find_request_action = parser.add_argument(
+            "--find-request", type=str, metavar="PKG",
+            help="find the contexts that contain the given package in the request")
+        find_resolve_action = parser.add_argument(
+            "--find-resolve", type=str, metavar="PKG",
+            help="find the contexts that contain the given package in the resolve")
+        DIR_action = parser.add_argument(
+            "DIR", type=str, nargs='?',
+            help="directory of suite to create or manage")
+
         DIR_action.completer = FilesCompleter(dirs=True, files=False)
         add_action.completer = FilesCompleter(dirs=False, file_patterns=["*.rxt"])
         find_request_action.completer = PackageFamilyCompleter

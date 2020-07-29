@@ -123,7 +123,7 @@ class PackageRepository(object):
             True if there are no packages, False if there are at least one.
         """
         for family in self.iter_package_families():
-            for pkg in self.iter_packages(family):
+            for _ in self.iter_packages(family):
                 return False
 
         return True
@@ -429,8 +429,7 @@ class PackageRepositoryManager(object):
         """
         path = "%s@%s" % (repository_type, location)
         repo = self.get_repository(path)
-        resource = repo.get_resource(**variables)
-        return resource
+        return repo.get_resource(**variables)
 
     def get_resource_from_handle(self, resource_handle):
         """Get a resource.
@@ -449,8 +448,7 @@ class PackageRepositoryManager(object):
                              "repository_type and location defined")
         path = "%s@%s" % (repo_type, location)
         repo = self.get_repository(path)
-        resource = repo.get_resource_from_handle(resource_handle)
-        return resource
+        return repo.get_resource_from_handle(resource_handle)
 
     def clear_caches(self):
         """Clear all cached data."""
@@ -462,8 +460,7 @@ class PackageRepositoryManager(object):
     def _get_repository(self, path):
         repo_type, location = path.split('@', 1)
         cls = plugin_manager.get_plugin_class('package_repository', repo_type)
-        repo = cls(location, self.pool)
-        return repo
+        return cls(location, self.pool)
 
 
 # singleton

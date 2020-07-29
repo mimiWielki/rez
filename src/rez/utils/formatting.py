@@ -127,26 +127,25 @@ class ObjectStringFormatter(Formatter):
                 return ("{%s}" % field_name, key)
 
     def get_value(self, key, args, kwds):
-        if isinstance(key, str):
-            if key:
-                try:
-                    # Check explicitly passed arguments first
-                    return kwds[key]
-                except KeyError:
-                    pass
-
-                try:
-                    # we deliberately do not call hasattr() first - hasattr()
-                    # silently catches exceptions from properties.
-                    return getattr(self.instance, key)
-                except AttributeError:
-                    pass
-
-                return self.instance[key]
-            else:
-                raise ValueError("zero length field name in format")
-        else:
+        if not isinstance(key, str):
             return Formatter.get_value(self, key, args, kwds)
+        if key:
+            try:
+                # Check explicitly passed arguments first
+                return kwds[key]
+            except KeyError:
+                pass
+
+            try:
+                # we deliberately do not call hasattr() first - hasattr()
+                # silently catches exceptions from properties.
+                return getattr(self.instance, key)
+            except AttributeError:
+                pass
+
+            return self.instance[key]
+        else:
+            raise ValueError("zero length field name in format")
 
 
 class StringFormatMixin(object):

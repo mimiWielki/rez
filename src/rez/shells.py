@@ -39,9 +39,9 @@ def get_shell_class(shell=None):
     """
     if not shell:
         shell = config.default_shell
-        if not shell:
-            from rez.system import system
-            shell = system.shell
+    if not shell:
+        from rez.system import system
+        shell = system.shell
 
     from rez.plugin_managers import plugin_manager
     return plugin_manager.get_plugin_class("shell", shell)
@@ -55,9 +55,9 @@ def create_shell(shell=None, **kwargs):
     """
     if not shell:
         shell = config.default_shell
-        if not shell:
-            from rez.system import system
-            shell = system.shell
+    if not shell:
+        from rez.system import system
+        shell = system.shell
 
     from rez.plugin_managers import plugin_manager
     return plugin_manager.create_instance('shell', shell, **kwargs)
