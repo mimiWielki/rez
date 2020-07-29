@@ -75,11 +75,7 @@ class Resolver(object):
 
         # store hash of pre-timestamp-combined package filter. This is used in
         # the memcached key
-        if package_filter:
-            self.package_filter_hash = package_filter.sha1
-        else:
-            self.package_filter_hash = ''
-
+        self.package_filter_hash = package_filter.sha1 if package_filter else ''
         # combine timestamp and package filter into single filter
         if self.timestamp:
             if package_filter:

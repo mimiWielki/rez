@@ -305,10 +305,7 @@ class ActionManager(object):
 
         if expanded_key in self.environ:
             del self.environ[expanded_key]
-        if self.interpreter.expand_env_vars:
-            key = expanded_key
-        else:
-            key = unexpanded_key
+        key = expanded_key if self.interpreter.expand_env_vars else unexpanded_key
         self.interpreter.unsetenv(key)
 
     def resetenv(self, key, value, friends=None):
@@ -333,10 +330,7 @@ class ActionManager(object):
         if (expanded_key not in self.environ) and \
                 ((self.parent_variables is True) or (expanded_key in self.parent_variables)):
             self.environ[expanded_key] = self.parent_environ.get(expanded_key, '')
-            if self.interpreter.expand_env_vars:
-                key_ = expanded_key
-            else:
-                key_ = unexpanded_key
+            key_ = expanded_key if self.interpreter.expand_env_vars else unexpanded_key
             self.interpreter._saferefenv(key_)
 
         # *pend or setenv depending on whether this is first reference to the var
@@ -599,10 +593,9 @@ class Python(ActionInterpreter):
         return self.manager.environ
 
     def setenv(self, key, value):
-        if self.update_session:
-            if key == 'PYTHONPATH':
-                value = self.escape_string(value)
-                sys.path = value.split(os.pathsep)
+        if self.update_session and key == 'PYTHONPATH':
+            value = self.escape_string(value)
+            sys.path = value.split(os.pathsep)
 
     def unsetenv(self, key):
         pass
@@ -611,16 +604,14 @@ class Python(ActionInterpreter):
         pass
 
     def prependenv(self, key, value):
-        if self.update_session:
-            if key == 'PYTHONPATH':
-                value = self.escape_string(value)
-                sys.path.insert(0, value)
+        if self.update_session and key == 'PYTHONPATH':
+            value = self.escape_string(value)
+            sys.path.insert(0, value)
 
     def appendenv(self, key, value):
-        if self.update_session:
-            if key == 'PYTHONPATH':
-                value = self.escape_string(value)
-                sys.path.append(value)
+        if self.update_session and key == 'PYTHONPATH':
+            value = self.escape_string(value)
+            sys.path.append(value)
 
     def info(self, value):
         if not self.passive:
@@ -876,10 +867,7 @@ class EscapedString(object):
                 out = EscapedString(value, is_literal)
                 push = False
 
-            if current is None:
-                current = out
-            else:
-                current = current + out
+            current = out if current is None else current + out
             if push:
                 result.append(current)
                 current = None
@@ -1018,8 +1006,9 @@ class EnvironmentDict(DictMixin):
                 be appended/prepended to as usual.
         """
         self.manager = manager
-        self._var_cache = dict((k, EnvironmentVariable(k, self))
-                               for k in manager.parent_environ.keys())
+        self._var_cache = {
+            k: EnvironmentVariable(k, self) for k in manager.parent_environ.keys()
+        }
 
     def keys(self):
         return self._var_cache.keys()
@@ -1042,8 +1031,7 @@ class EnvironmentDict(DictMixin):
         del self._var_cache[key]
 
     def __iter__(self):
-        for key in self._var_cache.keys():
-            yield key
+        yield from self._var_cache.keys()
 
     def __len__(self):
         return len(self._var_cache)
@@ -1229,11 +1217,7 @@ class RexExecutor(object):
             Compiled code object.
         """
         if filename is None:
-            if isinstance(code, SourceCode):
-                filename = code.sourcename
-            else:
-                filename = "<string>"
-
+            filename = code.sourcename if isinstance(code, SourceCode) else "<string>"
         # compile
         try:
             if isinstance(code, SourceCode):
@@ -1246,10 +1230,10 @@ class RexExecutor(object):
             stack = traceback.format_exc()
             raise RexError("Failed to compile %s:\n\n%s" % (filename, stack))
 
-        error_class = Exception if config.catch_rex_errors else None
-
         # execute
         if exec_namespace is not None:
+            error_class = Exception if config.catch_rex_errors else None
+
             try:
                 if isinstance(code, SourceCode):
                     code.exec_(globals_=exec_namespace)

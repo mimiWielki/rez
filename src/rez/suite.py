@@ -144,7 +144,7 @@ class Suite(object):
         if in_request:
             def _in_request(name):
                 context = self.context(name)
-                packages = set(x.name for x in context.requested_packages(True))
+                packages = {x.name for x in context.requested_packages(True)}
                 return (in_request in packages)
 
             names = [x for x in names if _in_request(x)]
@@ -317,13 +317,10 @@ class Suite(object):
                 to disk, so a filepath hasn't yet been established.
         """
         tools_dict = self.get_tools()
-        if tool_alias in tools_dict:
-            if self.tools_path is None:
-                return None
-            else:
-                return os.path.join(self.tools_path, tool_alias)
-        else:
+        if self.tools_path is None or tool_alias not in tools_dict:
             return None
+        else:
+            return os.path.join(self.tools_path, tool_alias)
 
     def get_tool_context(self, tool_alias):
         """Given a visible tool alias, return the name of the context it
@@ -525,8 +522,7 @@ class Suite(object):
             List of `Suite` objects.
         """
         suite_paths = cls.visible_suite_paths(paths)
-        suites = [cls.load(x) for x in suite_paths]
-        return suites
+        return [cls.load(x) for x in suite_paths]
 
     def print_info(self, buf=sys.stdout, verbose=False):
         """Prints a message summarising the contents of the suite."""
@@ -672,8 +668,7 @@ class Suite(object):
         suite_path = suite_path or self.load_path
         if not suite_path:
             return None
-        filepath = os.path.join(suite_path, "contexts", "%s.rxt" % name)
-        return filepath
+        return os.path.join(suite_path, "contexts", "%s.rxt" % name)
 
     def _sorted_contexts(self):
         return sorted(self.contexts.values(), key=lambda x: x["priority"])

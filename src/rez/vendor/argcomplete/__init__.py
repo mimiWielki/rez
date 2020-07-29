@@ -400,9 +400,13 @@ class CompletionFinder(object):
         # We can't use that functionality because bash is not smart enough to recognize continuation characters (/) for
         # which no space should be added.
         continuation_chars = '=/:'
-        if len(completions) == 1 and completions[0][-1] not in continuation_chars:
-            if cword_prequote == '' and not completions[0].endswith(' '):
-                completions[0] += ' '
+        if (
+            len(completions) == 1
+            and completions[0][-1] not in continuation_chars
+            and cword_prequote == ''
+            and not completions[0].endswith(' ')
+        ):
+            completions[0] += ' '
 
         return completions
 

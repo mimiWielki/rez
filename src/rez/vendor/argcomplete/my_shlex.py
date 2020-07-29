@@ -51,10 +51,7 @@ class shlex:
             self.instream = sys.stdin
             self.infile = None
         self.posix = posix
-        if posix:
-            self.eof = None
-        else:
-            self.eof = ''
+        self.eof = None if posix else ''
         self.commenters = '#'
         self.wordchars = ('abcdfeghijklmnopqrstuvwxyz'
                           'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_')
@@ -115,8 +112,7 @@ class shlex:
     def get_token(self):
         "Get a token from the input stream (or from stack if it's nonempty)"
         if self.pushback:
-            tok = self.pushback.popleft()
-            return tok
+            return self.pushback.popleft()
         # No pushback.  Get a token.
         raw = self.read_token()
         # Handle inclusions
@@ -228,7 +224,7 @@ class shlex:
                     self.lineno += 1
                     if self.posix:
                         self.state = ' '
-                        if self.token or (self.posix and quoted):
+                        if self.token or quoted:
                             break   # emit current token
                         else:
                             continue
@@ -241,8 +237,7 @@ class shlex:
                     if nextchar in self.punctuation_chars:
                         self.token += nextchar
                     else:
-                        if nextchar not in self.whitespace:
-                            self._pushback_chars.append(nextchar)
+                        self._pushback_chars.append(nextchar)
                         self.state = ' '
                         break
                 elif (nextchar in self.wordchars or nextchar in self.quotes

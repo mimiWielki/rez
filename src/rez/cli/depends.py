@@ -29,12 +29,12 @@ def setup_parser(parser, completions=False):
     parser.add_argument(
         "-q", "--quiet", action="store_true",
         help="don't print progress bar or depth indicators")
-    PKG_action = parser.add_argument(
-        "PKG",
-        help="package that other packages depend on")
-
     if completions:
         from rez.cli._complete_util import PackageFamilyCompleter
+        PKG_action = parser.add_argument(
+            "PKG",
+            help="package that other packages depend on")
+
         PKG_action.completer = PackageFamilyCompleter
 
 
@@ -73,10 +73,7 @@ def command(opts, parser, extra_arg_groups=None):
         return 0
 
     for i, pkgs in enumerate(pkgs_list):
-        if opts.quiet:
-            toks = pkgs
-        else:
-            toks = ["#%d:" % i] + pkgs
+        toks = pkgs if opts.quiet else ["#%d:" % i] + pkgs
         print(' '.join(toks))
 
 

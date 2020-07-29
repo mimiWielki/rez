@@ -57,15 +57,11 @@ def generate(num_nodes, num_edges, directed=False, weight_range=(1, 1)):
     weights (uniform distribution).
     """
     # Graph creation
-    if directed:
-        random_graph = digraph()
-    else:
-        random_graph = graph()
-
+    random_graph = digraph() if directed else graph()
     # Nodes
     nodes = range(num_nodes)
     random_graph.add_nodes(nodes)
-    
+
     # Build a list of all possible edges
     edges = []
     edges_append = edges.append
@@ -73,10 +69,10 @@ def generate(num_nodes, num_edges, directed=False, weight_range=(1, 1)):
         for y in nodes:
             if ((directed and x != y) or (x > y)):
                 edges_append((x, y))
-    
+
     # Randomize the list
     shuffle(edges)
-    
+
     # Add edges to the graph
     min_wt = min(weight_range)
     max_wt = max(weight_range)

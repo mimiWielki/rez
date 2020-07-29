@@ -74,8 +74,7 @@ def get_patched_request(requires, patchlist):
         if not replaced:
             appended.append(Requirement(patch))
 
-    result = [x for x in requires if x is not None] + appended
-    return result
+    return [x for x in requires if x is not None] + appended
 
 
 # Copyright 2013-2016 Allan Johns.

@@ -16,7 +16,6 @@ def build(source_path, build_path, install_path, targets):
         raise Exception('loco should not be here')
     except ImportError:
         print('Intentionally raising an ImportError since loco should not be available')
-        pass
 
 
 # Copyright 2013-2016 Allan Johns.

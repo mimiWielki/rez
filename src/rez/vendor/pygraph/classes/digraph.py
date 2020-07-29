@@ -160,11 +160,11 @@ class digraph (basegraph, common, labeling):
         """
         u, v = edge
         for n in [u,v]:
-            if not n in self.node_neighbors:
+            if n not in self.node_neighbors:
                 raise AdditionError( "%s is missing from the node_neighbors table" % n )
-            if not n in self.node_incidence:
+            if n not in self.node_incidence:
                 raise AdditionError( "%s is missing from the node_incidence table" % n )
-            
+
         if v in self.node_neighbors[u] and u in self.node_incidence[v]:
             raise AdditionError("Edge (%s, %s) already in digraph" % (u, v))
         else:

@@ -44,8 +44,7 @@ def get_version_in_python(name, commands):
     if not success or not out:
         raise RezBindError("Couldn't determine version of module %s: %s"
                            % (name, err))
-    version = out
-    return version
+    return out
 
 
 def check_version(version, range_=None):
@@ -78,8 +77,8 @@ def find_exe(name, filepath=None):
             raise RezBindError("not a file: %s" % filepath)
     else:
         filepath = which(name)
-        if not filepath:
-            raise RezBindError("could not find executable: %s" % name)
+    if not filepath:
+        raise RezBindError("could not find executable: %s" % name)
 
     return filepath
 

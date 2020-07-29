@@ -10,10 +10,7 @@ try:
     any
 except NameError:
     def any(iterable):
-        for element in iterable:
-            if element:
-                return True
-        return False
+        return any(iterable)
 
 try:
     from collections import OrderedDict
@@ -402,10 +399,7 @@ class EnumMeta(type):
 
         """
         metacls = cls.__class__
-        if type is None:
-            bases = (cls, )
-        else:
-            bases = (type, cls)
+        bases = (cls, ) if type is None else (type, cls)
         classdict = metacls.__prepare__(class_name, bases)
         __order__ = []
 
@@ -507,10 +501,7 @@ class EnumMeta(type):
 
             N__new__ = getattr(None, '__new__')
             O__new__ = getattr(object, '__new__')
-            if Enum is None:
-                E__new__ = N__new__
-            else:
-                E__new__ = Enum.__dict__['__new__']
+            E__new__ = N__new__ if Enum is None else Enum.__dict__['__new__']
             # check all possibles for __member_new__ before falling back to
             # __new__
             for method in ('__member_new__', '__new__'):
@@ -540,11 +531,7 @@ class EnumMeta(type):
             # if a non-object.__new__ is used then whatever value/tuple was
             # assigned to the enum member name will be passed to __new__ and to the
             # new enum member's __init__
-            if __new__ is object.__new__:
-                use_args = False
-            else:
-                use_args = True
-
+            use_args = False if __new__ is object.__new__ else True
             return __new__, False, use_args
     else:
         @staticmethod
@@ -586,11 +573,7 @@ class EnumMeta(type):
             # if a non-object.__new__ is used then whatever value/tuple was
             # assigned to the enum member name will be passed to __new__ and to the
             # new enum member's __init__
-            if __new__ is object.__new__:
-                use_args = False
-            else:
-                use_args = True
-
+            use_args = False if __new__ is object.__new__ else True
             return __new__, save_new, use_args
 
 
@@ -600,8 +583,9 @@ class EnumMeta(type):
 # and then use the `type(name, bases, dict)` method to
 # create the class.
 ########################################################
-temp_enum_dict = {}
-temp_enum_dict['__doc__'] = "Generic enumeration.\n\n    Derive from this class to define new enumerations.\n\n"
+temp_enum_dict = {
+    '__doc__': "Generic enumeration.\n\n    Derive from this class to define new enumerations.\n\n"
+}
 
 def __new__(cls, value):
     # all enum instances are actually created during class construction
@@ -671,7 +655,6 @@ if pyver < 2.6:
                 return 0
             return -1
         return NotImplemented
-        raise TypeError("unorderable types: %s() and %s()" % (self.__class__.__name__, other.__class__.__name__))
     temp_enum_dict['__cmp__'] = __cmp__
     del __cmp__
 

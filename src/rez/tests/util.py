@@ -100,9 +100,8 @@ class TempdirMixin(object):
 
     @classmethod
     def tearDownClass(cls):
-        if not os.getenv("REZ_KEEP_TMPDIRS"):
-            if os.path.exists(cls.root):
-                shutil.rmtree(cls.root)
+        if not os.getenv("REZ_KEEP_TMPDIRS") and os.path.exists(cls.root):
+            shutil.rmtree(cls.root)
 
 
 def find_file_in_path(to_find, path_str, pathsep=None, reverse=True):

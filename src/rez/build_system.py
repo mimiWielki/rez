@@ -56,7 +56,7 @@ def get_valid_build_systems(working_dir, package=None):
     # build system uses another (a 'child' build system) - eg, cmake uses
     # make. Detect this case and ignore files from the child build system.
     #
-    child_clss = set(x.child_build_system() for x in clss)
+    child_clss = {x.child_build_system() for x in clss}
     clss = list(set(clss) - child_clss)
 
     return clss

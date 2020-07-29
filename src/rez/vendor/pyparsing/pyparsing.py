@@ -228,7 +228,7 @@ else:
         except AttributeError:
             continue
 
-_generatorType = type((y for y in range(1)))
+_generatorType = type(iter(range(1)))
 
 def _xml_escape(data):
     """Escape &, <, >, ", ', etc. in a string of data."""
@@ -510,7 +510,7 @@ class ParseResults(object):
                 self.__toklist = list(toklist)
             else:
                 self.__toklist = [toklist]
-            self.__tokdict = dict()
+            self.__tokdict = {}
 
         if name is not None and name:
             if not modal:
@@ -685,8 +685,7 @@ class ParseResults(object):
             del self[index]
             return ret
         else:
-            defaultvalue = args[1]
-            return defaultvalue
+            return args[1]
 
     def get(self, key, defaultValue=None):
         """
@@ -903,8 +902,7 @@ class ParseResults(object):
         """
         nl = "\n"
         out = []
-        namedItems = dict((v[1],k) for (k,vlist) in self.__tokdict.items()
-                                                            for v in vlist)
+        namedItems = {v[1]: k for (k,vlist) in self.__tokdict.items() for v in vlist}
         nextLevelIndent = indent + "  "
 
         # collapse out indents if formatting is not desired
@@ -942,9 +940,7 @@ class ParseResults(object):
                                         formatted)]
             else:
                 # individual token, see if there is a name for it
-                resTag = None
-                if i in namedItems:
-                    resTag = namedItems[i]
+                resTag = namedItems.get(i, None)
                 if not resTag:
                     if namedItemsOnly:
                         continue
@@ -1026,12 +1022,11 @@ class ParseResults(object):
             - month: 31
             - year: 12
         """
-        out = []
-        NL = '\n'
-        out.append( indent+_ustr(self.asList()) )
+        out = [indent + _ustr(self.asList())]
         if full:
             if self.haskeys():
                 items = sorted((str(k), v) for k,v in self.items())
+                NL = '\n'
                 for k,v in items:
                     if out:
                         out.append(NL)
@@ -1096,10 +1091,7 @@ class ParseResults(object):
          self.__name) = state[1]
         self.__accumNames = {}
         self.__accumNames.update(inAccumNames)
-        if par is not None:
-            self.__parent = wkref(par)
-        else:
-            self.__parent = None
+        self.__parent = wkref(par) if par is not None else None
 
     def __getnewargs__(self):
         return self.__toklist, self.__name, self.__asList, self.__modal
@@ -1214,9 +1206,8 @@ def _trim_arity(func, maxargs=2):
     def wrapper(*args):
         while 1:
             try:
-                ret = func(*args[limit[0]:])
                 foundArity[0] = True
-                return ret
+                return func(*args[limit[0]:])
             except TypeError:
                 # re-raise TypeErrors if they did not come from our arity testing
                 if foundArity[0]:
@@ -1224,7 +1215,7 @@ def _trim_arity(func, maxargs=2):
                 else:
                     try:
                         tb = sys.exc_info()[-1]
-                        if not extract_tb(tb, limit=2)[-1][:2] == pa_call_line_synth:
+                        if extract_tb(tb, limit=2)[-1][:2] != pa_call_line_synth:
                             raise
                     finally:
                         del tb
@@ -1289,7 +1280,7 @@ class ParserElement(object):
         ParserElement._literalStringClass = cls
 
     def __init__( self, savelist=False ):
-        self.parseAction = list()
+        self.parseAction = []
         self.failAction = None
         #~ self.name = "<unknown>"  # don't define self.name, let subclasses try/except upcall
         self.strRepr = None
@@ -1300,7 +1291,7 @@ class ParserElement(object):
         self.copyDefaultWhiteChars = True
         self.mayReturnEmpty = False # used when checking for left-recursion
         self.keepTabs = False
-        self.ignoreExprs = list()
+        self.ignoreExprs = []
         self.debug = False
         self.streamlined = False
         self.mayIndexError = True # used to optimize exception handling for subclasses that don't advance parse index
@@ -1501,9 +1492,9 @@ class ParserElement(object):
             exprsFound = False
             for e in self.ignoreExprs:
                 try:
+                    exprsFound = True
                     while 1:
                         loc,dummy = e._parse( instring, loc )
-                        exprsFound = True
                 except ParseException:
                     pass
         return loc
@@ -1712,12 +1703,12 @@ class ParserElement(object):
     # this method gets repeatedly called during backtracking with the same arguments -
     # we can cache these arguments and save ourselves the trouble of re-parsing the contained expression
     def _parseCache( self, instring, loc, doActions=True, callPreParse=True ):
-        HIT, MISS = 0, 1
-        lookup = (self, instring, loc, callPreParse, doActions)
         with ParserElement.packrat_cache_lock:
             cache = ParserElement.packrat_cache
+            lookup = (self, instring, loc, callPreParse, doActions)
             value = cache.get(lookup)
             if value is cache.not_in_cache:
+                HIT, MISS = 0, 1
                 ParserElement.packrat_cache_stats[MISS] += 1
                 try:
                     value = self._parseNoCache(instring, loc, doActions, callPreParse)
@@ -2399,7 +2390,7 @@ class ParserElement(object):
         return self == other
 
     def __rne__(self,other):
-        return not (self == other)
+        return self != other
 
     def matches(self, testString, parseAll=True):
         """
@@ -2804,7 +2795,7 @@ class CloseMatch(Token):
             mismatches = []
             maxMismatches = self.maxMismatches
 
-            for match_stringloc,s_m in enumerate(zip(instring[loc:maxloc], self.match_string)):
+            for match_stringloc,s_m in enumerate(zip(instring[loc:maxloc], match_string)):
                 src,mat = s_m
                 if src != mat:
                     mismatches.append(match_stringloc)
@@ -2896,11 +2887,7 @@ class Word(Token):
 
         self.minLen = min
 
-        if max > 0:
-            self.maxLen = max
-        else:
-            self.maxLen = _MAX_INT
-
+        self.maxLen = max if max > 0 else _MAX_INT
         if exact > 0:
             self.maxLen = exact
             self.minLen = exact
@@ -3310,11 +3297,7 @@ class CharsNotIn(Token):
 
         self.minLen = min
 
-        if max > 0:
-            self.maxLen = max
-        else:
-            self.maxLen = _MAX_INT
-
+        self.maxLen = max if max > 0 else _MAX_INT
         if exact > 0:
             self.maxLen = exact
             self.minLen = exact
@@ -3400,11 +3383,7 @@ class White(Token):
 
         self.minLen = min
 
-        if max > 0:
-            self.maxLen = max
-        else:
-            self.maxLen = _MAX_INT
-
+        self.maxLen = max if max > 0 else _MAX_INT
         if exact > 0:
             self.maxLen = exact
             self.minLen = exact
@@ -3499,15 +3478,12 @@ class LineEnd(_PositionToken):
         self.errmsg = "Expected end of line"
 
     def parseImpl( self, instring, loc, doActions=True ):
-        if loc<len(instring):
-            if instring[loc] == "\n":
-                return loc+1, "\n"
-            else:
-                raise ParseException(instring, loc, self.errmsg, self)
-        elif loc == len(instring):
-            return loc+1, []
-        else:
+        if loc < len(instring) and instring[loc] == "\n":
+            return loc+1, "\n"
+        elif loc < len(instring) or loc != len(instring):
             raise ParseException(instring, loc, self.errmsg, self)
+        else:
+            return loc+1, []
 
 class StringStart(_PositionToken):
     """Matches if current position is at the beginning of the parse
@@ -3532,14 +3508,12 @@ class StringEnd(_PositionToken):
         self.errmsg = "Expected end of text"
 
     def parseImpl( self, instring, loc, doActions=True ):
-        if loc < len(instring):
+        if loc < len(instring) or loc != len(instring) and loc <= len(instring):
             raise ParseException(instring, loc, self.errmsg, self)
         elif loc == len(instring):
             return loc+1, []
-        elif loc > len(instring):
-            return loc, []
         else:
-            raise ParseException(instring, loc, self.errmsg, self)
+            return loc, []
 
 class WordStart(_PositionToken):
     """Matches if the current position is at the beginning of a Word,
@@ -3556,10 +3530,13 @@ class WordStart(_PositionToken):
         self.errmsg = "Not at the start of a word"
 
     def parseImpl(self, instring, loc, doActions=True ):
-        if loc != 0:
-            if (instring[loc-1] in self.wordChars or
-                instring[loc] not in self.wordChars):
-                raise ParseException(instring, loc, self.errmsg, self)
+        if loc != 0 and (
+            (
+                instring[loc - 1] in self.wordChars
+                or instring[loc] not in self.wordChars
+            )
+        ):
+            raise ParseException(instring, loc, self.errmsg, self)
         return loc, []
 
 class WordEnd(_PositionToken):
@@ -3578,10 +3555,17 @@ class WordEnd(_PositionToken):
 
     def parseImpl(self, instring, loc, doActions=True ):
         instrlen = len(instring)
-        if instrlen>0 and loc<instrlen:
-            if (instring[loc] in self.wordChars or
-                instring[loc-1] not in self.wordChars):
-                raise ParseException(instring, loc, self.errmsg, self)
+        if (
+            instrlen > 0
+            and loc < instrlen
+            and (
+                (
+                    instring[loc] in self.wordChars
+                    or instring[loc - 1] not in self.wordChars
+                )
+            )
+        ):
+            raise ParseException(instring, loc, self.errmsg, self)
         return loc, []
 
 

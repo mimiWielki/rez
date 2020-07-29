@@ -175,11 +175,7 @@ class SourceCode(object):
 
     @property
     def sourcename(self):
-        if self.filepath:
-            filename = self.filepath
-        else:
-            filename = "string"
-
+        filename = self.filepath if self.filepath else "string"
         if self.funcname:
             filename += ":%s" % self.funcname
 
@@ -223,11 +219,7 @@ class SourceCode(object):
 
     def to_text(self, funcname):
         # don't indent code if already indented
-        if self.source[0] in (' ', '\t'):
-            source = self.source
-        else:
-            source = indent(self.source)
-
+        source = self.source if self.source[0] in (' ', '\t') else indent(self.source)
         txt = "def %s():\n%s" % (funcname, source)
 
         for entry in self.decorators:

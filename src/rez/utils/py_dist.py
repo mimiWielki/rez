@@ -106,8 +106,8 @@ def get_dist_dependencies(name, recurse=True):
 
             for req in dist.requires():
                 reqs_ = convert_requirement(req)
-                deps |= set(x.split('-', 1)[0] for x in reqs_
-                            if not x.startswith('!'))
+                deps |= {x.split('-', 1)[0] for x in reqs_
+                                            if not x.startswith('!')}
 
         working = deps - reqs
         depth += 1

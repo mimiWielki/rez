@@ -326,10 +326,7 @@ def _transform_attrs(cls, these, auto_attribs, kw_only):
             annot_names.add(attr_name)
             a = cd.get(attr_name, NOTHING)
             if not isinstance(a, _CountingAttr):
-                if a is NOTHING:
-                    a = attrib()
-                else:
-                    a = attrib(default=a)
+                a = attrib() if a is NOTHING else attrib(default=a)
             ca_list.append((attr_name, a))
 
         unannotated = ca_names - annot_names
@@ -389,8 +386,8 @@ def _transform_attrs(cls, these, auto_attribs, kw_only):
     was_kw_only = False
     for a in attrs:
         if (
-            was_kw_only is False
-            and had_default is True
+            not was_kw_only
+            and had_default
             and a.default is NOTHING
             and a.init is True
             and a.kw_only is False
@@ -409,13 +406,13 @@ def _transform_attrs(cls, these, auto_attribs, kw_only):
             a.kw_only is False
         ):
             had_default = True
-        if was_kw_only is True and a.kw_only is False and a.init is True:
+        if was_kw_only and a.kw_only is False and a.init is True:
             raise ValueError(
                 "Non keyword-only attributes are not allowed after a "
                 "keyword-only attribute (unless they are init=False).  "
                 "Attribute in question: {a!r}".format(a=a)
             )
-        if was_kw_only is False and a.init is True and a.kw_only is True:
+        if not was_kw_only and a.init is True and a.kw_only is True:
             was_kw_only = True
 
     return _Attributes((attrs, base_attrs, base_attr_map))
@@ -475,7 +472,7 @@ class _ClassBuilder(object):
         self._cls = cls
         self._cls_dict = dict(cls.__dict__) if slots else {}
         self._attrs = attrs
-        self._base_names = set(a.name for a in base_attrs)
+        self._base_names = {a.name for a in base_attrs}
         self._base_attr_map = base_map
         self._attr_names = tuple(a.name for a in attrs)
         self._slots = slots
@@ -925,11 +922,7 @@ def attrs(
                     " hashing must be either explicitly or implicitly "
                     "enabled."
                 )
-        elif (
-            hash is True
-            or (hash is None and cmp is True and frozen is True)
-            and is_exc is False
-        ):
+        elif hash is True or cmp is True and frozen is True and is_exc is False:
             builder.add_hash()
         else:
             if cache_hash:
@@ -1283,7 +1276,7 @@ def _make_init(
     )
     locs = {}
     bytecode = compile(script, unique_filename, "exec")
-    attr_dict = dict((a.name, a) for a in attrs)
+    attr_dict = {a.name: a for a in attrs}
     globs.update({"NOTHING": NOTHING, "attr_dict": attr_dict})
 
     if frozen is True:
@@ -2023,7 +2016,7 @@ def make_class(name, attrs, bases=(object,), **attributes_arguments):
     if isinstance(attrs, dict):
         cls_dict = attrs
     elif isinstance(attrs, (list, tuple)):
-        cls_dict = dict((a, attrib()) for a in attrs)
+        cls_dict = {a: attrib() for a in attrs}
     else:
         raise TypeError("attrs argument must be a dict or a list.")
 

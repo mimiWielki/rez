@@ -632,8 +632,7 @@ class Config(six.with_metaclass(LazyAttributeMeta, object)):
     def _create_main_config(cls, overrides=None):
         """See comment block at top of 'rezconfig' describing how the main
         config is assembled."""
-        filepaths = []
-        filepaths.append(get_module_root_config())
+        filepaths = [get_module_root_config()]
         filepath = os.getenv("REZ_CONFIG_FILE")
         if filepath:
             filepaths.extend(filepath.split(os.pathsep))
@@ -777,7 +776,7 @@ def expand_system_vars(data):
         elif isinstance(value, (list, tuple, set)):
             return [_expanded(x) for x in value]
         elif isinstance(value, dict):
-            return dict((k, _expanded(v)) for k, v in value.items())
+            return {k: _expanded(v) for k, v in value.items()}
         else:
             return value
     return _expanded(data)

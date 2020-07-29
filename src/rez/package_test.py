@@ -102,9 +102,7 @@ class PackageTestRunner(object):
         if self.package is not None:
             return self.package
 
-        if self.use_current_env:
-            pass
-        else:
+        if not self.use_current_env:
             package = get_latest_package_from_string(str(self.package_request),
                                                      self.package_paths)
             if package is None:

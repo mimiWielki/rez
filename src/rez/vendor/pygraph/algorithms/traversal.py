@@ -50,15 +50,14 @@ def traversal(graph, node, order):
     @return: Traversal iterator.
     """
     visited = {}
-    if (order == 'pre'):
-        pre = 1
-        post = 0
-    elif (order == 'post'):
+    if order == 'post':
         pre = 0
         post = 1
-    
-    for each in _dfs(graph, visited, node, pre, post):
-        yield each
+
+    elif order == 'pre':
+        pre = 1
+        post = 0
+    yield from _dfs(graph, visited, node, pre, post)
 
 
 def _dfs(graph, visited, node, pre, post):
@@ -79,6 +78,5 @@ def _dfs(graph, visited, node, pre, post):
     # Explore recursively the connected component
     for each in graph[node]:
         if (each not in visited):
-            for other in _dfs(graph, visited, each, pre, post):
-                yield other
+            yield from _dfs(graph, visited, each, pre, post)
     if (post): yield node

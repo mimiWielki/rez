@@ -77,9 +77,11 @@ class euclidean(object):
                     if (each[0] == 'position'):
                         end_attr = each[1]
                         break
-                dist = 0
-                for i in range(len(start_attr)):
-                    dist = dist + (float(start_attr[i]) - float(end_attr[i]))**2
+                dist = sum(
+                    (float(start_attr[i]) - float(end_attr[i])) ** 2
+                    for i in range(len(start_attr))
+                )
+
                 self.distances[(start,end)] = dist
         
     def __call__(self, start, end):

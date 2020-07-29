@@ -531,8 +531,8 @@ class Connection(AbstractChannel):
 
     def _blocked(self, args):
         """RabbitMQ Extension."""
-        reason = args.read_shortstr()
         if self.on_blocked:
+            reason = args.read_shortstr()
             return self.on_blocked(reason)
 
     def _unblocked(self, *args):

@@ -54,7 +54,7 @@ def get_reverse_dependency_tree(package_name, depth=None, paths=None,
 
     # build reverse lookup
     it = iter_package_families(paths)
-    package_names = set(x.name for x in it)
+    package_names = {x.name for x in it}
     if package_name not in package_names:
         raise PackageFamilyNotFoundError("No such package family %r" % package_name)
 
@@ -137,7 +137,7 @@ def get_plugins(package_name, paths=None):
         return []
 
     it = iter_package_families(paths)
-    package_names = set(x.name for x in it)
+    package_names = {x.name for x in it}
     bar = ProgressBar("Searching", len(package_names))
 
     plugin_pkgs = []
@@ -225,10 +225,8 @@ class ResourceSearcher(object):
         # Find matching package families
         name_pattern, version_range = self._parse_request(resources_request)
 
-        family_names = set(
-            x.name for x in iter_package_families(paths=self.package_paths)
-            if fnmatch.fnmatch(x.name, name_pattern)
-        )
+        family_names = {x.name for x in iter_package_families(paths=self.package_paths)
+                if fnmatch.fnmatch(x.name, name_pattern)}
 
         family_names = sorted(family_names)
 

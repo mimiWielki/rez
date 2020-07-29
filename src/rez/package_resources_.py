@@ -378,11 +378,7 @@ class PackageResourceHelper(PackageResource):
     def iter_variants(self):
         num_variants = len(self.variants or [])
 
-        if num_variants == 0:
-            indexes = [None]
-        else:
-            indexes = range(num_variants)
-
+        indexes = [None] if num_variants == 0 else range(num_variants)
         for index in indexes:
             variant = self._repository.get_resource(
                 self.variant_key,
@@ -463,8 +459,7 @@ class VariantResourceHelper(six.with_metaclass(_Metas, VariantResource)):
             return hashdir
         else:
             dirs = [x.safe_str() for x in self.variant_requires]
-            subpath = os.path.join(*dirs)
-            return subpath
+            return os.path.join(*dirs)
 
     def _root(self, ignore_shortlinks=False):
         if self.base is None:
@@ -473,8 +468,7 @@ class VariantResourceHelper(six.with_metaclass(_Metas, VariantResource)):
             return self.base
         else:
             subpath = self._subpath(ignore_shortlinks=ignore_shortlinks)
-            root = os.path.join(self.base, subpath)
-            return root
+            return os.path.join(self.base, subpath)
 
     @cached_property
     def variant_requires(self):

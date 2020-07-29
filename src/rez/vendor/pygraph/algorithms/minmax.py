@@ -68,11 +68,11 @@ def minimal_spanning_tree(graph, root=None):
         spanning_tree[root] = None
     else:
         nroot = 1
-    
+
     # Algorithm loop
     while (nroot is not None):
         ledge = _lightest_edge(graph, visited)
-        if (ledge == None):
+        if ledge is None:
             if (root is not None):
                 break
             nroot = _first_unvisited(graph, visited)
@@ -168,7 +168,7 @@ def shortest_path(graph, source):
     finished = set()
 
     # Algorithm loop
-    while len(q) > 0:
+    while q:
         du, u = q.pop(0)
 
         # Process reachable, remaining nodes from u
@@ -217,25 +217,28 @@ def shortest_path_bellman_ford(graph, source):
     # initialize the required data structures       
     distance = {source : 0}
     predecessor = {source : None}
-    
-    # iterate and relax edges    
-    for i in range(1,graph.order()-1):
+
+    # iterate and relax edges
+    for _ in range(1,graph.order()-1):
         for src,dst in graph.edges():
             if (src in distance) and (dst not in distance):
                 distance[dst] = distance[src] + graph.edge_weight((src,dst))
                 predecessor[dst] = src
-            elif (src  in distance) and (dst in distance) and \
-            distance[src] + graph.edge_weight((src,dst)) < distance[dst]:
+            elif (
+                src in distance
+                and distance[src] + graph.edge_weight((src, dst))
+                < distance[dst]
+            ):
                 distance[dst] = distance[src] + graph.edge_weight((src,dst))
                 predecessor[dst] = src
-                
+
     # detect negative weight cycles
     for src,dst in graph.edges():
         if src in distance and \
            dst in distance and \
            distance[src] + graph.edge_weight((src,dst)) < distance[dst]:
             raise NegativeWeightCycleError("Detected a negative weight cycle on edge (%s, %s)" % (src,dst))
-        
+
     return predecessor, distance
         
 #Heuristics search
@@ -438,10 +441,10 @@ def cut_value(graph, flow, cut):
     for node in S:
         for neigh in graph.neighbors(node):
             if neigh in T:
-                value = value + flow[(node,neigh)]
+                value += flow[(node,neigh)]
         for inc in graph.incidents(node):
             if inc in T:
-                value = value - flow[(inc,node)]    
+                value -= flow[(inc,node)]
     return value
 
 def cut_tree(igraph, caps = None):
@@ -478,7 +481,7 @@ def cut_tree(igraph, caps = None):
     N = 0
     for node in graph.nodes():
         n[N] = node
-        N = N + 1
+        N += 1
 
     #predecessor function
     p = {}.fromkeys(range(N),0)
@@ -492,7 +495,7 @@ def cut_tree(igraph, caps = None):
         for i in range(N):
             if cut[n[i]] == 0:
                 S.append(i)
-        
+
         value = cut_value(graph,flow,cut)
 
         f[s] = value

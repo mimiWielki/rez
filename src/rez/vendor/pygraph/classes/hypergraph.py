@@ -177,7 +177,7 @@ class hypergraph (basegraph, common, labeling):
         @type  node: node
         @param node: Node identifier.
         """
-        if (not node in self.node_links):
+        if node not in self.node_links:
             self.node_links[node] = []
             self.node_attr[node] = []
             self.graph.add_node((node,'n'))
@@ -223,7 +223,7 @@ class hypergraph (basegraph, common, labeling):
         @type  hyperedge: hyperedge
         @param hyperedge: Hyperedge identifier.
         """
-        if (not hyperedge in self.edge_links):
+        if hyperedge not in self.edge_links:
             self.edge_links[hyperedge] = []
             self.graph.add_node((hyperedge,'h'))
 

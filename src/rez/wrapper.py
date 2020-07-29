@@ -94,9 +94,7 @@ class Wrapper(object):
                                          prefix_chars=prefix_char)
 
         def _add_argument(*nargs, **kwargs):
-            nargs_ = []
-            for narg in nargs:
-                nargs_.append(narg.replace('=', prefix_char))
+            nargs_ = [narg.replace('=', prefix_char) for narg in nargs]
             parser.add_argument(*nargs_, **kwargs)
 
         _add_argument(

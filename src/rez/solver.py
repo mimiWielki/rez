@@ -592,8 +592,7 @@ class _PackageVariantSlice(_Common):
 
     def iter_variants(self):
         for entry in self.entries:
-            for variant in entry.variants:
-                yield variant
+            yield from entry.variants
 
     def intersect(self, range_):
         self.solver.intersection_broad_tests_count += 1
@@ -602,9 +601,8 @@ class _PackageVariantSlice(_Common):
         if range_.is_any():
             return self
 
-        if self.solver.optimised:
-            if range_ in self.been_intersected_with:
-                return self
+        if self.solver.optimised and range_ in self.been_intersected_with:
+            return self
 
         if self.pr:
             self.pr.passive("intersecting %s wrt range '%s'...", self, range_)
@@ -637,9 +635,8 @@ class _PackageVariantSlice(_Common):
             reqstr = _short_req_str(package_request)
             self.pr.passive("reducing %s wrt %s...", self, reqstr)
 
-        if self.solver.optimised:
-            if package_request in self.been_reduced_by:
-                return (self, [])
+        if self.solver.optimised and package_request in self.been_reduced_by:
+            return (self, [])
 
         if (package_request.range is None) or \
                 (package_request.name not in self.fam_requires):
@@ -923,10 +920,9 @@ class PackageVariantCache(object):
         if not entries:
             return None
 
-        slice_ = _PackageVariantSlice(package_name,
+        return _PackageVariantSlice(package_name,
                                       entries=entries,
                                       solver=self.solver)
-        return slice_
 
 
 class _PackageScope(_Common):
@@ -1115,7 +1111,7 @@ def _get_dependency_order(g, node_list):
     """Return list of nodes as close as possible to the ordering in node_list,
     but with child nodes earlier in the list than parents."""
     access_ = accessibility(g)
-    deps = dict((k, set(v) - set([k])) for k, v in access_.items())
+    deps = {k: set(v) - set([k]) for k, v in access_.items()}
     nodes = node_list + list(set(g.nodes()) - set(node_list))
     ordered_nodes = []
 
@@ -1380,8 +1376,8 @@ class _ResolvePhase(_Common):
         """
         assert(self._is_solved())
         g = self._get_minimal_graph()
-        scopes = dict((x.package_name, x) for x in self.scopes
-                      if not x.package_request.conflict)
+        scopes = {x.package_name: x for x in self.scopes
+                          if not x.package_request.conflict}
 
         # check for cyclic dependencies
         fam_cycle = find_cycle(g)
@@ -1544,11 +1540,7 @@ class _ResolvePhase(_Common):
                 return id_
 
             label = str(request)
-            if initial_request:
-                color = request_color
-            else:
-                color = node_color
-
+            color = request_color if initial_request else node_color
             id_ = _add_node(label, color, "filled,dashed")
             request_nodes[request] = id_
             return id_
@@ -1711,7 +1703,7 @@ class _ResolvePhase(_Common):
 
         nodes = set()
         edges = set()
-        scopes = dict((x.package_name, x) for x in self.scopes)
+        scopes = {x.package_name: x for x in self.scopes}
 
         for scope in scopes.values():
             variant = scope._get_solved_variant()
@@ -1734,10 +1726,7 @@ class _ResolvePhase(_Common):
         return g
 
     def _is_solved(self):
-        for scope in self.scopes:
-            if not scope._is_solved():
-                return False
-        return True
+        return all(scope._is_solved() for scope in self.scopes)
 
     def _get_solved_variants(self):
         variants = []
@@ -1813,11 +1802,7 @@ class Solver(_Common):
         self.print_stats = print_stats
         self.buf = buf
 
-        if _force_unoptimised_solver:
-            self.optimised = False
-        else:
-            self.optimised = optimised
-
+        self.optimised = False if _force_unoptimised_solver else optimised
         self.non_conflict_package_requests = [x for x in package_requests
                                               if not x.conflict]
 
@@ -2153,9 +2138,11 @@ class Solver(_Common):
         print('\n'.join(columnise(rows)))
 
         if self.failed_phase_list:
-            rows = []
-            for i, phase in enumerate(self.failed_phase_list):
-                rows.append(("#%d" % i, phase.status, str(phase)))
+            rows = [
+                ("#%d" % i, phase.status, str(phase))
+                for i, phase in enumerate(self.failed_phase_list)
+            ]
+
             print()
             print("previous failures:")
             print('\n'.join(columnise(rows)))
@@ -2214,10 +2201,8 @@ class Solver(_Common):
         return keep_going
 
     def _get_variant_slice(self, package_name, range_):
-        slice_ = self.package_cache.get_variant_slice(
+        return self.package_cache.get_variant_slice(
             package_name=package_name, range_=range_)
-
-        return slice_
 
     def _push_phase(self, phase):
         depth = len(self.phase_stack)

@@ -172,16 +172,14 @@ def _bind_package(name, path=None, version_range=None, bind_args=None,
     if not bindfunc:
         raise RezBindError("'bind' function missing in %s" % bindfile)
 
-    variants = bindfunc(path=install_path,
+    return bindfunc(path=install_path,
                         version_range=version_range,
                         opts=bind_opts,
                         parser=bind_parser)
 
-    return variants
-
 
 def _print_package_list(variants):
-    packages = set([x.parent for x in variants])
+    packages = {x.parent for x in variants}
     packages = sorted(packages, key=lambda x: x.name)
 
     rows = [["PACKAGE", "URI"],

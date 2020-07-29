@@ -1,6 +1,7 @@
 """
 test package iteration, serialization etc
 """
+
 from rez.packages_ import iter_package_families, iter_packages, get_package, \
     create_package, get_developer_package
 from rez.package_py_utils import expand_requirement
@@ -50,15 +51,15 @@ ALL_PACKAGES = set([
     'multi-1.0', 'multi-1.1', 'multi-1.2', 'multi-2.0'])
 
 
-ALL_FAMILIES = set(x.split('-')[0] for x in ALL_PACKAGES)
+ALL_FAMILIES = {x.split('-')[0] for x in ALL_PACKAGES}
 
 
 def _to_names(it):
-    return set(p.name for p in it)
+    return {p.name for p in it}
 
 
 def _to_qnames(it):
-    return set(p.qualified_name for p in it)
+    return {p.qualified_name for p in it}
 
 
 class TestPackages(TestBase, TempdirMixin):
